@@ -89,6 +89,7 @@ async function main() {
                     return;
                 }
             }
+
             await fs.writeFile('CHANGELOG.md', baseMarkdown);
         } catch (error) {
             console.error('Erro ao buscar commits:', error);
@@ -96,7 +97,16 @@ async function main() {
     }
 
     await getCommitsByUser(owner, repo);
-    await createPullRequest(owner, repo, branch, token);
+
+    // Cria e muda para uma nova branch
+    const changelogBranch = 'changelog-updates'; // Nome da nova branch
+    await execPromise(`git checkout -b ${changelogBranch}`);
+    await execPromise('git add CHANGELOG.md');
+    await execPromise('git commit -m "Atualiza CHANGELOG.md"');
+    await execPromise(`git push origin ${changelogBranch}`); // Envia a nova branch
+
+    // Cria o pull request
+    await createPullRequest(owner, repo, changelogBranch, token);
 }
 
 async function createPullRequest(owner, repo, branch, token) {
@@ -106,10 +116,10 @@ async function createPullRequest(owner, repo, branch, token) {
         const response = await octokit.request('POST /repos/{owner}/{repo}/pulls', {
             owner,
             repo,
-            title: "ChangeLog",
-            body: "New Change log file",
-            head: branch,
-            base: "main",
+            title: "Atualiza ChangeLog",
+            body: "Novo arquivo CHANGELOG.md com as últimas alterações.",
+            head: branch, // Nova branch com o changelog
+            base: "main", // Branch de destino
         });
 
         console.log(`Pull request criado: ${response.data.html_url}`);
