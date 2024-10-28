@@ -1,0 +1,15 @@
+name: 'Gerar Changelog'
+description: 'Gera um changelog baseado nos commits do repositório.'
+runs:
+  using: 'node20'
+  main: 'index.js'
+inputs:
+  owner:
+    description: 'Dono do repositório'
+    required: true
+  repo:
+    description: 'Nome do repositório'
+    required: true
+  token:
+    description: 'Token do GitHub'
+    required: true
